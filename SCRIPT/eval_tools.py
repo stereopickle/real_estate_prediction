@@ -8,11 +8,10 @@ Created on Tue Sep 29 17:20:18 2020
 
 from statsmodels.tsa.stattools import adfuller
 
-
-def run_dickyey_fuller(series):
+def run_dickyey_fuller(series, title):
     result = adfuller(series)
     p = result[1]
     if p < 0.05:
-        print(f'Null Rejected (p = {round(p, 4)}). This series is stationary')
+        print(f'Null Rejected (p = {round(p, 4)}). {title} time series is stationary')
     else: 
-        print(f'Failed to reject the null (p = {round(p, 4)}). This series is not stationary')
+        print(f'Failed to reject the null (p = {round(p, 4)}). {title} time series is not stationary')

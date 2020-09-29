@@ -17,7 +17,9 @@ import folium
 import json
 from urllib.request import urlopen
 import pickle
+from statsmodels.tsa.seasonal import seasonal_decompose
 
+from SCRIPT.eval_tools import *
 
 def select_geodata(values):
     ''' return geoJSON with only zipcodes in values '''
@@ -58,6 +60,7 @@ def plot_coropleth(df, columns, title, geodata_sel = {}):
 
 def plot_basic(series, xlabel = 'year', ylabel = '', title = ''):
     ''' return basic time series plot ''' 
+    plt.figure(figsize = (6, 4))
     series.plot()
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
@@ -67,6 +70,7 @@ def plot_basic(series, xlabel = 'year', ylabel = '', title = ''):
 def plot_hist(series, xlabel = 'year', ylabel = 'frequency', 
               title = '', bins = 20):
     ''' return basic time series plot ''' 
+    plt.figure(figsize = (6, 4))
     series.hist(grid=False, bins = bins)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
@@ -74,15 +78,33 @@ def plot_hist(series, xlabel = 'year', ylabel = 'frequency',
     plt.show()
 
 # plotting moving average and sd
-def plot_moving_avg(series, window):
+def plot_moving_avg(series, window, zipcode = ''):
     rolling_mean = series.rolling(window = window).mean()
     rolling_sd = series.rolling(window = window).std()
-    plt.figure(figsize = (8, 5))
-    plt.plot(rolling_mean, '--', label = 'Rolling Mean')
-    plt.plot(rolling_sd, '--', label = 'Rolling St. Dev')
-    plt.plot(series, label = 'Actual Values')
+    plt.figure(figsize = (6, 4))
+    plt.plot(series, label = 'Actual Values', lw = 2)    
+    plt.plot(rolling_mean, '--', label = 'Rolling Mean', lw = 2)
+    plt.plot(rolling_sd, '--', label = 'Rolling St. Dev', lw = 2)
     plt.legend()
     plt.ylabel('percent increase')
-    plt.title(f'{window} months rolling trend')
+    plt.title(f'{window} months rolling trend ({zipcode})')
     plt.show()
     
+from matplotlib import rcParams
+
+def plot_decomposition(series, zipcode = ''):
+    rcParams['figure.figsize'] = 10,4
+    seasonal_decompose(series).plot()
+    plt.xlabel(f'year ({zipcode})')
+    plt.show()
+
+def print_summary(series, zipcode):
+    plot_basic(series, ylabel = f'percent increase ({zipcode})')
+    plot_hist(series, ylabel = f'frequency ({zipcode})')
+    plot_moving_avg(series, 24, zipcode)
+    plot_decomposition(series, zipcode)
+    summary = series.describe()
+    print(f'[{zipcode} SUMMARY]')
+    print(f"Mean: {round(summary['mean'], 2)}")
+    print(f"Std: {round(summary['std'], 2)}")
+    run_dickyey_fuller(series, zipcode)
