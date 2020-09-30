@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 
 import seaborn as sns
 
@@ -17,7 +18,9 @@ import folium
 import json
 from urllib.request import urlopen
 import pickle
+
 from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 from SCRIPT.eval_tools import *
 
@@ -90,7 +93,6 @@ def plot_moving_avg(series, window, zipcode = ''):
     plt.title(f'{window} months rolling trend ({zipcode})')
     plt.show()
     
-from matplotlib import rcParams
 
 def plot_decomposition(series, zipcode = ''):
     rcParams['figure.figsize'] = 10,4
@@ -108,3 +110,13 @@ def print_summary(series, zipcode):
     print(f"Mean: {round(summary['mean'], 2)}")
     print(f"Std: {round(summary['std'], 2)}")
     run_dickyey_fuller(series, zipcode)
+    
+def def_acf_pacf(series, zipcode):
+    plt.figure(figsize = (8, 4))
+    ax1 = plt.subplot(1, 2, 1)
+    plot_acf(series, ax = ax1, alpha = 0.05)
+    plt.title(f'ACF ({zipcode})')
+    ax2 = plt.subplot(1, 2, 2)
+    plot_pacf(series, ax = ax2, alpha = 0.05)
+    plt.title(f'PACF ({zipcode})')
+    plt.show()
