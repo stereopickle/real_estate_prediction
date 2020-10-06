@@ -22,8 +22,12 @@ import pickle
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 
+from itertools import product
 
+from sklearn.metrics import mean_squared_error as MSE
+from math import sqrt
 
 def run_dickyey_fuller(series, title):
     result = adfuller(series)
@@ -130,3 +134,50 @@ def def_acf_pacf(series, zipcode):
     plot_pacf(series, ax = ax2, alpha = 0.05)
     plt.title(f'PACF ({zipcode})')
     plt.show()
+    
+    
+def find_sarima_param(df, max_range = 2, s = 12, thresh = 500):
+    '''find the best sarima params'''
+    p = q = d = range(0, max_range)
+    pdq = list(product(p, d, q))
+    spdq = [x + (s,) for x in pdq]
+    min_param = [None, None, thresh]
+
+    for param in pdq:
+        for sparam in spdq:
+            try:
+                mod = SARIMAX(df, order=param,
+                              seasonal_order=sparam,
+                              enforce_stationarity=False,
+                              enforce_invertibility=False)
+                results = mod.fit()
+
+                if results.aic < min_param[2]: 
+                    min_param[0] = param
+                    min_param[1] = sparam
+                    min_param[2] = results.aic
+            except:
+                continue
+    print(f'pdq: {min_param[0]}, PDQS: {min_param[1]} - AIC: {round(min_param[2], 2)}')
+    return min_param[0], min_param[1]
+
+def RMSE(y_true, y_pred):
+    return sqrt(MSE(y_true, y_pred))
+
+def get_RMSE(data, model, term = 40, show = True):
+    pred = model.get_prediction(-term)
+    pred_ci = pred.conf_int()
+    sel_dat = data[-term:]
+    rmse = RMSE(sel_dat, pred.predicted_mean)
+    if show:
+        ax = data.plot(label='observed', figsize=(8, 6))
+        pred.predicted_mean.plot(ax=ax, label='predicted')
+        ax.fill_between(pred_ci.index,
+                        pred_ci.iloc[:, 0],
+                        pred_ci.iloc[:, 1], color='k', alpha=0.1)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Percent Increase')
+        
+        plt.legend(loc='best')
+        plt.show()
+    return rmse
