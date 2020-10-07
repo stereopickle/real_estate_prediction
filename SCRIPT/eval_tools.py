@@ -29,6 +29,9 @@ from itertools import product
 from sklearn.metrics import mean_squared_error as MSE
 from math import sqrt
 
+from fbprophet import Prophet
+
+
 def run_dickyey_fuller(series, title):
     result = adfuller(series)
     p = result[1]
@@ -181,3 +184,53 @@ def get_RMSE(data, model, term = 40, show = True):
         plt.legend(loc='best')
         plt.show()
     return rmse
+
+def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
+    ''' get RMSE for test set '''
+    train = df[:-term]
+    test = df[-term:]
+    hist = list(train)
+    pred = list()
+    for term in range(len(test)):
+        model = SARIMAX(hist, order = pdq, 
+                        seasonal_order = SPDQ,
+                        enforce_stationarity=False, 
+                        enforce_invertibility=False)
+        fit = model.fit(disp=0)
+        pred.append(fit.forecast()[0])
+        hist.append(test[term]) 
+    if show:
+        plt.figure(figsize=(8, 6))
+        plt.plot(df, label='true')
+        plt.plot(test.index, pred, label='forecast')
+        plt.xlabel('Date')
+        plt.ylabel('Percent Increase')        
+        plt.legend(loc='best')
+        plt.title('rolling forecasting on test set')
+        plt.show()
+    return RMSE(test, pred)
+    
+def fb_prophet_forecast(df0, term = 40, show = True):
+    df = df0.copy()
+    df.columns = ['ds', 'y']
+    train = df[:-term]
+    test = df[-term:]
+    model = Prophet(yearly_seasonality = True, interval_width = 0.95)
+    model.add_country_holidays(country_name = 'US')
+    model.fit(train)
+    future_terms = model.make_future_dataframe(periods = term, freq = 'MS')
+    forecast = model.predict(future_terms)
+    if show:
+        model.plot(forecast, xlabel = 'date', 
+                   ylabel = 'percent increase', figsize = (8, 6))
+        plt.show()
+        model.plot_components(forecast, figsize = (8, 6))
+        plt.show()
+    return RMSE(test['y'], list(forecast['yhat'][-term:]))
+    
+    
+    
+    
+    
+    
+    
