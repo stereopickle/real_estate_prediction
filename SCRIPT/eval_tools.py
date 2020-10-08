@@ -140,9 +140,13 @@ def def_acf_pacf(series, zipcode):
     plt.show()
     
     
-def find_sarima_param(df, max_range = 2, s = 12, thresh = 500):
+def find_sarima_param(df, max_range = 2, 
+                      p = range(0, 2), 
+                      q = range(0, 2),
+                      d = range(0, 2),
+                      s = 12, thresh = 500):
     '''find the best sarima params'''
-    p = q = d = range(0, max_range)
+    
     pdq = list(product(p, d, q))
     spdq = [x + (s,) for x in pdq]
     min_param = [None, None, thresh]
@@ -151,9 +155,7 @@ def find_sarima_param(df, max_range = 2, s = 12, thresh = 500):
         for sparam in spdq:
             try:
                 mod = SARIMAX(df, order=param,
-                              seasonal_order=sparam,
-                              enforce_stationarity=False,
-                              enforce_invertibility=False)
+                              seasonal_order=sparam)
                 results = mod.fit()
 
                 if results.aic < min_param[2]: 
@@ -193,9 +195,7 @@ def rolling_forecast(df, pdq, SPDQ, term = 40):
     pred = list()
     for term in range(len(test)):
         model = SARIMAX(hist, order = pdq, 
-                        seasonal_order = SPDQ,
-                        enforce_stationarity=False, 
-                        enforce_invertibility=False)
+                        seasonal_order = SPDQ)
         fit = model.fit(disp=0)
         pred.append(fit.forecast()[0])
         hist.append(test[term]) 
@@ -203,7 +203,7 @@ def rolling_forecast(df, pdq, SPDQ, term = 40):
 
 def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
     ''' get RMSE for test set '''
-    _, test, _, pred = test_RMSE(df, pdq, SPDQ, term = term)
+    _, test, _, pred = rolling_forecast(df, pdq, SPDQ, term = term)
     
     if show:
         plt.figure(figsize=(8, 6))
