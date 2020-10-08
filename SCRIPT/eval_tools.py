@@ -186,8 +186,7 @@ def get_RMSE(data, model, term = 40, show = True):
         plt.show()
     return rmse
 
-def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
-    ''' get RMSE for test set '''
+def rolling_forecast(df, pdq, SPDQ, term = 40):
     train = df[:-term]
     test = df[-term:]
     hist = list(train)
@@ -200,6 +199,12 @@ def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
         fit = model.fit(disp=0)
         pred.append(fit.forecast()[0])
         hist.append(test[term]) 
+    return hist, pred
+
+def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
+    ''' get RMSE for test set '''
+    hist, pred = test_RMSE(df, pdq, SPDQ, term = term)
+    
     if show:
         plt.figure(figsize=(8, 6))
         plt.plot(df, label='true')
