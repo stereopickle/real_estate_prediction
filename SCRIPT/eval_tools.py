@@ -30,6 +30,7 @@ from sklearn.metrics import mean_squared_error as MSE
 from math import sqrt
 
 from fbprophet import Prophet
+from fbprophet.plot import add_changepoints_to_plot
 
 
 def run_dickyey_fuller(series, title):
@@ -209,28 +210,35 @@ def test_RMSE(df, pdq, SPDQ, term = 40, show = True):
         plt.title('rolling forecasting on test set')
         plt.show()
     return RMSE(test, pred)
-    
-def fb_prophet_forecast(df0, term = 40, show = True):
+
+def fb_prophet_forecast(df0, changepoint_scale = 1, term = 40):
     df = df0.copy()
     df.columns = ['ds', 'y']
     train = df[:-term]
     test = df[-term:]
-    model = Prophet(yearly_seasonality = True, interval_width = 0.95)
+    model = Prophet(changepoint_prior_scale = changepoint_scale,
+                    yearly_seasonality = True, 
+                    daily_seasonality = False,
+                    weekly_seasonality = False,
+                    interval_width = 0.95)
+    
     model.add_country_holidays(country_name = 'US')
     model.fit(train)
-    future_terms = model.make_future_dataframe(periods = term, freq = 'MS')
-    forecast = model.predict(future_terms)
-    if show:
-        model.plot(forecast, xlabel = 'date', 
-                   ylabel = 'percent increase', figsize = (8, 6))
-        plt.show()
-        model.plot_components(forecast, figsize = (8, 6))
-        plt.show()
-    return RMSE(test['y'], list(forecast['yhat'][-term:]))
-    
-    
-    
-    
-    
+    future = model.make_future_dataframe(periods = term, 
+                                               freq = 'MS')
+    forecast = model.predict(future)
+    rmse = RMSE(test['y'], list(forecast['yhat'][-term:]))
+    return rmse, forecast, model
+
+        
+def fbp_plot(forecast, model, changepoint = False):
+
+    fig = model.plot(forecast, xlabel = 'date', 
+               ylabel = 'percent increase', figsize = (8, 6))
+    if changepoint:
+        a = add_changepoints_to_plot(fig.gca(), model, forecast)
+    plt.show()
+    model.plot_components(forecast, figsize = (8, 6))
+    plt.show()
     
     
