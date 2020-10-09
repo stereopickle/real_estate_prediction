@@ -6,18 +6,13 @@ Created on Tue Sep 29 16:56:36 2020
 @author: stereopickles
 """
 
-import pandas as pd
-import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
-import seaborn as sns
-
 import folium
 import json
 from urllib.request import urlopen
-import pickle
 
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
