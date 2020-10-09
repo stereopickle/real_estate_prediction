@@ -16,26 +16,26 @@ I capped the time periods to be since September 2003 because that's when all zip
 
 In order to compared the the growth trend across areas with different housing values, I used the percent increase of housing price at each time point instead of the actual housing price. 
 
-[!all_percent_increase.png](PNG/all_percent_increase.png)
+![all_percent_increase.png](PNG/all_percent_increase.png)
 
 Out of 54 zipcodes in Queens, I selected 4 zipcodes that deviates the most from the overall average, and 1 zipcode that is closest to the overall average to represent the majority. The select zip-codes are '11101', '11693', '11692', '11694', '11103'. 
 
 ## EDA
 
-[!all_housing_price.png](PNG/all_housing_price.png)
+![all_housing_price.png](PNG/all_housing_price.png)
 
 We can see that the housing prices in Queens are generally following similar upward trend with a very few exceptions.  
 Average percent increase is about 0.3%, average ranging from -1.85% to 2.09% depending on the zipcodes. Overall the minimum value is -2.76% and the maximum value is 3.12%.
 
-[!average price increase](PNG/avg_percent_increase.png)
+![average price increase](PNG/avg_percent_increase.png)
 
 This plot shows the average price increase (%) across all Queens. We can see that there was a price bubble early 2000s, then the prices started to drop during 2007-2008 recession. Since then it's been steadily growing at around 0.5% each month, until the recent COVID-19 outbreaks. 
 
-[!total_percent_increase](PNG/total_percent_increase.png)
+![total_percent_increase](PNG/total_percent_increase.png)
 
 This map shows overall the areas closer to Manhattan (e.g. LIC) have shown the higher total percent increase.
 
-[!price_growth_10_yrs.png](PNG/price_growth_10_yrs.png)
+![price_growth_10_yrs.png](PNG/price_growth_10_yrs.png)
 
 The fixed price growth in zipcodes bordering other boroughs reflect the recent developments in these areas.
 
@@ -44,13 +44,13 @@ Our data overall showed a strong yearly seasonality. Some zipcodes had non-stati
 
 Here are some example predictions from these models (for 11101, LIC)...
 #### SARIMA
-[!11101_SARIMA](PNG/11101_SARIMA.png)
+![11101_SARIMA](PNG/11101_SARIMA.png)
 
 #### Facebook Prophet
-[!11101_FBP](PNG/11101_FBP.png)
+![11101_FBP](PNG/11101_FBP.png)
 
 #### LSTM
-[!11101_LSTM](PNG/11101_LSTM.png)
+![11101_LSTM](PNG/11101_LSTM.png)
 
 | zipcode | historic avg | persistence | SARIMA | FB_Prophet | LSTM | 
 | --- | --- | --- | --- | --- | --- |
@@ -66,10 +66,10 @@ SARIMA model had the least amount of RMSE, which was an improvement from the bas
 ## Forecasting
 Finally, I used the SARIMA model to forecast the percent increase of housing prices in these five zipcodes.
 
-[!forecast_percent_increase](PNG/forecast_percent_increase.png)
+![forecast_percent_increase](PNG/forecast_percent_increase.png)
 Our model is forecasting that the price for 11693 (Rockaway Beach) will likely to continue to stay increasing even though the rate of price increase might not stay as high as it currently is. On the other hand, the prices for 11103 (Astoria) and 11101 (LIC) are at a bit of plateau right now, but will start to increase going forward. Given how Astoria had the trend closest to the overall Queens, these two neighborhoods will likely to follow similar growth pattern as the overall Queens. On the other hand, the forecast shows that prices for areas right around the Rockaway Beach (11694 and 11692) but not the central rockaway beach will likely to drop for a while.
 
-[!forecast_housing_price](PNG/forecast_housing_price.png)
+![forecast_housing_price](PNG/forecast_housing_price.png)
 We can see that popular areas with already high housing price like LIC and Astoria are likely continue to go up at a similar rate so worth investing into if the budget is high. On the other hand, the rockaway beach area is a growing neighborhood with lower average housing price that will likely to do well in the future. But other rockaway areas that are not around the central rockaway beach is forecasted to decrease.
 
 
